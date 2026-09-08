@@ -128,10 +128,14 @@
             opacity: 0.9;
         }
 
-        .hint {
-            font-size: 12px;
-            color: #6b778c;
-            margin-top: 4px;
+        .hint-box {
+            margin-top: 8px;
+            padding: 10px 12px;
+            background-color: #deebff;
+            border-left: 4px solid var(--primary-color);
+            border-radius: 4px;
+            color: #0747a6;
+            font-size: 13px;
         }
     </style>
 </head>
@@ -153,17 +157,15 @@
                 <option value="Other campaigns">Other campaigns</option>
                 <option value="Organic social">Organic social</option>
             </select>
+            <!-- 切换为 Other campaigns 时弹出的提示文本 -->
+            <div id="otherCampaignHint" class="hint-box">
+                💡 <strong>备注：</strong>线索来自于营销邮箱，或者是电话渠道等线下渠道等。
+            </div>
         </div>
 
         <div class="form-group">
             <label>2. Source Details (Dropdown)</label>
             <select id="sourceDetailSelect" onchange="generateSourceResult()"></select>
-        </div>
-
-        <div class="form-group" id="remarkGroup">
-            <label id="remarkLabel">3. Source Details Description / Remark</label>
-            <input type="text" id="sourceRemark" placeholder="Enter detail description (e.g. Marketing Email Name, Phone Inquiry Subject, Dealer Name)" oninput="generateSourceResult()">
-            <div class="hint" id="remarkHint">Please specify details for Other campaigns below.</div>
         </div>
 
         <div class="result-box">
@@ -247,7 +249,7 @@
     function updateSourceDetailsOptions() {
         const origSource = document.getElementById("origSource").value;
         const detailSelect = document.getElementById("sourceDetailSelect");
-        const remarkGroup = document.getElementById("remarkGroup");
+        const hintBox = document.getElementById("otherCampaignHint");
 
         detailSelect.innerHTML = "";
 
@@ -258,29 +260,19 @@
             detailSelect.appendChild(opt);
         });
 
-        if (origSource === "Organic social") {
-            remarkGroup.style.display = "none";
-            document.getElementById("sourceRemark").value = "";
+        // 仅在选择 Other campaigns 时展示备注提示
+        if (origSource === "Other campaigns") {
+            hintBox.style.display = "block";
         } else {
-            remarkGroup.style.display = "block";
+            hintBox.style.display = "none";
         }
 
         generateSourceResult();
     }
 
     function generateSourceResult() {
-        const origSource = document.getElementById("origSource").value;
         const detail = document.getElementById("sourceDetailSelect").value;
-        const remark = document.getElementById("sourceRemark").value.trim();
-
-        let result = "";
-        if (origSource === "Other campaigns") {
-            result = remark ? `${detail} (${remark})` : detail;
-        } else {
-            result = detail;
-        }
-
-        document.getElementById("srcResult").innerText = result;
+        document.getElementById("srcResult").innerText = detail || "--";
     }
 
     // Marketing Assets Configuration
