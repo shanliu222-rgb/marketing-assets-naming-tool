@@ -1,74 +1,416 @@
-<div class="form-group">
-    <label>1. 原始流量渠道 (Original Traffic Source)</label>
-    <select id="origSource" onchange="updateSourceDetailsOptions()">
-        <option value="Other campaigns">Other campaigns</option>
-        <option value="Organic social">Organic social</option>
-    </select>
-</div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HubSpot & Offline Lead Naming Tool</title>
+    <style>
+        :root {
+            --primary-color: #0052cc;
+            --bg-color: #f4f5f7;
+            --card-bg: #ffffff;
+            --text-color: #172b4d;
+            --border-color: #dfe1e6;
+        }
 
-<div class="form-group">
-    <label>2. 渠道细分 (Source Details)</label>
-    <select id="sourceDetailSelect" onchange="generateSourceResult()"></select>
-</div>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+        }
 
-<div class="form-group" id="remarkGroup">
-    <label>3. 备注信息 (Remark / Detail Notes)</label>
-    <input type="text" id="sourceRemark" placeholder="请输入具体线索来源（如：客户邮件地址、具体电话事项等）" oninput="generateSourceResult()">
-    <div class="hint">当渠道为 Other campaigns 时，请在框框中备注线索具体来源。</div>
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--primary-color);
+            margin-bottom: 24px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .tab-btn {
+            padding: 12px 24px;
+            border: none;
+            background: none;
+            font-size: 16px;
+            font-weight: 600;
+            color: #5e6c84;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            margin-bottom: -2px;
+        }
+
+        .tab-btn.active {
+            color: var(--primary-color);
+            border-bottom-color: var(--primary-color);
+        }
+
+        .tab-content {
+            display: none;
+            background: var(--card-bg);
+            padding: 24px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 6px;
+            font-size: 14px;
+        }
+
+        select, input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+
+        select:focus, input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .result-box {
+            margin-top: 24px;
+            background-color: #f8f9fa;
+            border: 1px dashed var(--primary-color);
+            border-radius: 6px;
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .result-text {
+            font-family: monospace;
+            font-size: 15px;
+            font-weight: bold;
+            color: #091e42;
+            word-break: break-all;
+        }
+
+        .copy-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .copy-btn:hover {
+            opacity: 0.9;
+        }
+
+        .hint {
+            font-size: 12px;
+            color: #6b778c;
+            margin-top: 4px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>HubSpot Standard Naming Generator</h1>
+
+    <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('sourceTab', event)">1. Offline/Traffic Source Details</button>
+        <button class="tab-btn" onclick="switchTab('assetTab', event)">2. Marketing Assets Naming</button>
+    </div>
+
+    <!-- Section 1: Traffic Source & Source Details -->
+    <div id="sourceTab" class="tab-content active">
+        <div class="form-group">
+            <label>1. Original Traffic Source</label>
+            <select id="origSource" onchange="updateSourceDetailsOptions()">
+                <option value="Other campaigns">Other campaigns</option>
+                <option value="Organic social">Organic social</option>
+                <option value="Offline Source">Offline Source (Exhibition, Sales Contact, etc.)</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>2. Source Details (Dropdown)</label>
+            <select id="sourceDetailSelect" onchange="generateSourceResult()"></select>
+        </div>
+
+        <div class="form-group" id="remarkGroup">
+            <label id="remarkLabel">3. Source Details Description / Remark</label>
+            <input type="text" id="sourceRemark" placeholder="Enter detail description (e.g. Gitex 2025, Lusha, Marketing Email Name, Phone Inquiry Subject)" oninput="generateSourceResult()">
+            <div class="hint" id="remarkHint">Provide specific channel details or event names.</div>
+        </div>
+
+        <div class="result-box">
+            <div>
+                <div style="font-size:12px; color:#5e6c84;">Generated Source Details / Value:</div>
+                <div id="srcResult" class="result-text">--</div>
+            </div>
+            <button class="copy-btn" onclick="copyText('srcResult')">Copy Result</button>
+        </div>
+    </div>
+
+    <!-- Section 2: Marketing Assets -->
+    <div id="assetTab" class="tab-content">
+        <div class="form-group">
+            <label>Asset Type</label>
+            <select id="assetType" onchange="updateAssetForm()">
+                <option value="Campaign">Campaign</option>
+                <option value="List">Segments / Lists</option>
+                <option value="Blog">Blog</option>
+                <option value="LP">Landing Page</option>
+                <option value="Form">Form</option>
+                <option value="Email">Email</option>
+                <option value="EmailTemplate">Email Template</option>
+                <option value="Workflow">Workflow</option>
+                <option value="Report">Report</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Business Unit</label>
+            <select id="bu" onchange="generateAssetName()">
+                <option value="HQ">HQ</option>
+                <option value="O/S">O/S</option>
+                <option value="LATAM">LATAM</option>
+                <option value="EURO">EURO</option>
+            </select>
+        </div>
+
+        <!-- Dynamic Form Fields Container -->
+        <div id="dynamicFields"></div>
+
+        <div class="result-box">
+            <div>
+                <div style="font-size:12px; color:#5e6c84;">Generated Asset Name:</div>
+                <div id="assetResult" class="result-text">--</div>
+            </div>
+            <button class="copy-btn" onclick="copyText('assetResult')">Copy Result</button>
+        </div>
+    </div>
 </div>
 
 <script>
-const sourceDetailsData = {
-    "Other campaigns": [
-        "EN Email", "ID Email", "400 Phone", "Front Desk Phone", 
-        "Website Online Chat", "From the dealer", "Hotline", "Sponsorship"
-    ],
-    "Organic social": [
-        "Facebook", "Instagram", "LinkedIn", "Twitter", 
-        "WhatsApp", "Line", "YouTube", "TikTok"
-    ]
-};
-
-function updateSourceDetailsOptions() {
-    const origSource = document.getElementById("origSource").value;
-    const detailSelect = document.getElementById("sourceDetailSelect");
-    const remarkGroup = document.getElementById("remarkGroup");
-
-    // 清空现有选项
-    detailSelect.innerHTML = "";
-
-    // 填充对应 Source Details
-    sourceDetailsData[origSource].forEach(item => {
-        const opt = document.createElement("option");
-        opt.value = item;
-        opt.textContent = item;
-        detailSelect.appendChild(opt);
-    });
-
-    // 仅在 Other campaigns 时显示备注框
-    if (origSource === "Other campaigns") {
-        remarkGroup.style.display = "block";
-    } else {
-        remarkGroup.style.display = "none";
-        document.getElementById("sourceRemark").value = "";
+    function switchTab(tabId, event) {
+        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+        
+        event.target.classList.add('active');
+        document.getElementById(tabId).classList.add('active');
     }
 
-    generateSourceResult();
-}
-
-function generateSourceResult() {
-    const origSource = document.getElementById("origSource").value;
-    const detail = document.getElementById("sourceDetailSelect").value;
-    const remark = document.getElementById("sourceRemark").value.trim();
-
-    let result = `Original Source: ${origSource} | Source Detail: ${detail}`;
-    if (remark) {
-        result += ` | Remark: ${remark}`;
+    function copyText(elementId) {
+        const text = document.getElementById(elementId).innerText;
+        if (!text || text === '--') return;
+        navigator.clipboard.writeText(text).then(() => {
+            alert('Copied to clipboard successfully!');
+        });
     }
 
-    document.getElementById("srcResult").innerText = result;
-}
+    // Traffic Source & Source Details Configuration
+    const sourceDetailsData = {
+        "Other campaigns": [
+            "EN Email", "ID Email", "400 Phone", "Front Desk Phone", 
+            "Website Online Chat", "From the dealer", "Hotline", "Sponsorship"
+        ],
+        "Organic social": [
+            "Facebook", "Instagram", "LinkedIn", "Twitter", 
+            "WhatsApp", "Line", "YouTube", "TikTok"
+        ],
+        "Offline Source": [
+            "Exhibition", "Offline Activity", "Sales Contact", 
+            "Dealer Distributor", "Promotion", "Third Party Database", "Staff", "Online Webinar"
+        ]
+    };
 
-// 初始化加载
-updateSourceDetailsOptions();
+    function updateSourceDetailsOptions() {
+        const origSource = document.getElementById("origSource").value;
+        const detailSelect = document.getElementById("sourceDetailSelect");
+        const remarkGroup = document.getElementById("remarkGroup");
+        const remarkHint = document.getElementById("remarkHint");
+
+        detailSelect.innerHTML = "";
+
+        sourceDetailsData[origSource].forEach(item => {
+            const opt = document.createElement("option");
+            opt.value = item;
+            opt.textContent = item;
+            detailSelect.appendChild(opt);
+        });
+
+        if (origSource === "Organic social") {
+            remarkGroup.style.display = "none";
+            document.getElementById("sourceRemark").value = "";
+        } else {
+            remarkGroup.style.display = "block";
+            if (origSource === "Other campaigns") {
+                remarkHint.innerText = "Please specify details below (e.g. marketing email name, call inquiry details, etc.).";
+            } else {
+                remarkHint.innerText = "Please specify event name, database source (e.g. Lusha), or contact person.";
+            }
+        }
+
+        generateSourceResult();
+    }
+
+    function generateSourceResult() {
+        const origSource = document.getElementById("origSource").value;
+        const detail = document.getElementById("sourceDetailSelect").value;
+        const remark = document.getElementById("sourceRemark").value.trim();
+
+        let result = "";
+        if (origSource === "Offline Source") {
+            result = remark ? `${detail} ${remark}` : detail;
+        } else if (origSource === "Other campaigns") {
+            result = remark ? `${detail} (${remark})` : detail;
+        } else {
+            result = detail;
+        }
+
+        document.getElementById("srcResult").innerText = result;
+    }
+
+    // Marketing Assets Configuration
+    const assetConfigs = {
+        Campaign: [
+            { id: 'region', label: 'Country / Region', type: 'text', placeholder: 'e.g. Central Asia / Brazil' },
+            { id: 'cat', label: 'Campaign Type', type: 'select', options: ['Product Launch', 'Industry Marketing', 'Regional Marketing', 'Push Marketing', 'Exhibition', 'Offline Activity'] },
+            { id: 'name', label: 'Campaign Name', type: 'text', placeholder: 'e.g. S series 20241024' }
+        ],
+        List: [
+            { id: 'region', label: 'Country / Region (Optional)', type: 'text', placeholder: 'e.g. South Korea' },
+            { id: 'cat', label: 'List Category', type: 'select', options: ['Exhibition', 'Offline Activity', 'Sales Contact', 'Dealer/Distributor', 'Staff', 'Assign Contact'] },
+            { id: 'name', label: 'Segments Name', type: 'text', placeholder: 'e.g. Hotel Fair_South Korea' },
+            { id: 'date', label: 'Date (YYYYMMDD)', type: 'text', placeholder: 'e.g. 20260128', defaultDate: true }
+        ],
+        Blog: [
+            { id: 'site', label: 'Site Name', type: 'select', options: ['EN Site', 'CN Site', 'TR Site', 'FR Site', 'KR Site', 'TH Site', 'RU Site', 'UZ Site', 'ID Site', 'ME Site', 'LA Site', 'BR Site', 'EU Site'] },
+            { id: 'name', label: 'Blog Title', type: 'text', placeholder: 'Enter blog English title' }
+        ],
+        LP: [
+            { id: 'site', label: 'Site Name', type: 'select', options: ['EN Site', 'CN Site', 'TR Site', 'FR Site', 'KR Site', 'TH Site', 'RU Site', 'UZ Site', 'ID Site', 'ME Site', 'LA Site', 'BR Site', 'EU Site'] },
+            { id: 'name', label: 'Landing Page Title', type: 'text', placeholder: 'Enter landing page title' }
+        ],
+        Form: [
+            { id: 'site', label: 'Site Name', type: 'select', options: ['EN Site', 'CN Site', 'TR Site', 'FR Site', 'KR Site', 'TH Site', 'RU Site', 'UZ Site', 'ID Site', 'ME Site', 'LA Site', 'BR Site', 'EU Site'] },
+            { id: 'name', label: 'Form Name', type: 'select', options: ['Register Form', 'Subscribe Form', 'Lead Form', 'Whitepaper Form', 'Find Dealer Form', 'Partner Form'] }
+        ],
+        Email: [
+            { id: 'lang', label: 'Language', type: 'select', options: ['English', 'Spanish', 'French', 'German', 'Portuguese', 'Russian', 'Turkish', 'Thailand', 'Indonesian', 'Korean', 'Uzbek', 'Malay'] },
+            { id: 'region', label: 'Country / Region (Optional)', type: 'text', placeholder: 'e.g. UAE / Global' },
+            { id: 'cat', label: 'Email Type', type: 'select', options: ['Exhibition', 'Offline Activity', 'Webinar', 'Product Marketing', 'Industry Marketing', 'Holiday & Festival', 'Auto-reply', 'Cutomer Journey', 'Product Launch', 'Push Marketing', 'Training Program', 'Case Study', 'Partner Recruitment', 'KOL Promotion'] },
+            { id: 'name', label: 'Email Title', type: 'text', placeholder: 'e.g. Africom' },
+            { id: 'date', label: 'Date (YYYYMMDD)', type: 'text', placeholder: 'e.g. 20260516', defaultDate: true }
+        ],
+        EmailTemplate: [
+            { id: 'lang', label: 'Language', type: 'select', options: ['English', 'Spanish', 'French', 'German', 'Portuguese', 'Russian', 'Turkish', 'Thailand', 'Indonesian', 'Korean', 'Uzbek', 'Malay'] },
+            { id: 'region', label: 'Country / Region (Optional)', type: 'text', placeholder: 'e.g. UAE / Global' },
+            { id: 'cat', label: 'Email Type', type: 'select', options: ['Exhibition', 'Offline Activity', 'Webinar', 'Product Marketing', 'Industry Marketing', 'Holiday & Festival', 'Auto-reply', 'Cutomer Journey', 'Product Launch', 'Push Marketing', 'Training Program', 'Case Study', 'Partner Recruitment', 'KOL Promotion'] },
+            { id: 'name', label: 'Email Title', type: 'text', placeholder: 'e.g. Interest in Collaboration' }
+        ],
+        Workflow: [
+            { id: 'name', label: 'Workflow Name / Purpose', type: 'text', placeholder: 'e.g. Assign Contact-Existing Contact' }
+        ],
+        Report: [
+            { id: 'name', label: 'Report Name / Objective', type: 'text', placeholder: 'e.g. KR Fire Expo follow up' }
+        ]
+    };
+
+    function updateAssetForm() {
+        const assetType = document.getElementById('assetType').value;
+        const config = assetConfigs[assetType];
+        const container = document.getElementById('dynamicFields');
+        container.innerHTML = '';
+
+        config.forEach(field => {
+            const div = document.createElement('div');
+            div.className = 'form-group';
+            
+            let html = `<label>${field.label}</label>`;
+            if (field.type === 'select') {
+                html += `<select id="field_${field.id}" onchange="generateAssetName()">`;
+                field.options.forEach(opt => {
+                    html += `<option value="${opt}">${opt}</option>`;
+                });
+                html += `</select>`;
+            } else {
+                let defaultVal = '';
+                if(field.defaultDate) {
+                    const today = new Date();
+                    defaultVal = today.toISOString().slice(0,10).replace(/-/g, '');
+                }
+                html += `<input type="${field.type}" id="field_${field.id}" value="${defaultVal}" placeholder="${field.placeholder || ''}" oninput="generateAssetName()">`;
+            }
+            div.innerHTML = html;
+            container.appendChild(div);
+        });
+
+        generateAssetName();
+    }
+
+    function generateAssetName() {
+        const type = document.getElementById('assetType').value;
+        const bu = document.getElementById('bu').value;
+        const getVal = (id) => document.getElementById(`field_${id}`) ? document.getElementById(`field_${id}`).value.trim() : '';
+
+        let res = '';
+        switch(type) {
+            case 'Campaign':
+                res = `${bu}-${getVal('region')}-${getVal('cat')}-${getVal('name')}`;
+                break;
+            case 'List':
+                res = `${bu}-${getVal('region')}-${getVal('cat')}-${getVal('name')}-${getVal('date')}`;
+                break;
+            case 'Blog':
+            case 'LP':
+            case 'Form':
+                res = `${bu}-${getVal('site')}-${getVal('name')}`;
+                break;
+            case 'Email':
+                res = `${bu}-${getVal('lang')}-${getVal('region')}-${getVal('cat')}-${getVal('name')}-${getVal('date')}`;
+                break;
+            case 'EmailTemplate':
+                res = `[Template]${bu}-${getVal('lang')}-${getVal('region')}-${getVal('cat')}-${getVal('name')}`;
+                break;
+            case 'Workflow':
+            case 'Report':
+                res = `${bu}-${getVal('name')}`;
+                break;
+        }
+
+        res = res.replace(/--+/g, '-').replace(/-$/, '');
+        document.getElementById('assetResult').innerText = res;
+    }
+
+    // Initialize Page
+    updateSourceDetailsOptions();
+    updateAssetForm();
 </script>
+</body>
+</html>
