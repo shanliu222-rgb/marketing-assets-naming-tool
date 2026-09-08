@@ -152,7 +152,6 @@
             <select id="origSource" onchange="updateSourceDetailsOptions()">
                 <option value="Other campaigns">Other campaigns</option>
                 <option value="Organic social">Organic social</option>
-                <option value="Offline Source">Offline Source (Exhibition, Sales Contact, etc.)</option>
             </select>
         </div>
 
@@ -163,8 +162,8 @@
 
         <div class="form-group" id="remarkGroup">
             <label id="remarkLabel">3. Source Details Description / Remark</label>
-            <input type="text" id="sourceRemark" placeholder="Enter detail description (e.g. Gitex 2025, Lusha, Marketing Email Name, Phone Inquiry Subject)" oninput="generateSourceResult()">
-            <div class="hint" id="remarkHint">Provide specific channel details or event names.</div>
+            <input type="text" id="sourceRemark" placeholder="Enter detail description (e.g. Marketing Email Name, Phone Inquiry Subject, Dealer Name)" oninput="generateSourceResult()">
+            <div class="hint" id="remarkHint">Please specify details for Other campaigns below.</div>
         </div>
 
         <div class="result-box">
@@ -242,10 +241,6 @@
         "Organic social": [
             "Facebook", "Instagram", "LinkedIn", "Twitter", 
             "WhatsApp", "Line", "YouTube", "TikTok"
-        ],
-        "Offline Source": [
-            "Exhibition", "Offline Activity", "Sales Contact", 
-            "Dealer Distributor", "Promotion", "Third Party Database", "Staff", "Online Webinar"
         ]
     };
 
@@ -253,7 +248,6 @@
         const origSource = document.getElementById("origSource").value;
         const detailSelect = document.getElementById("sourceDetailSelect");
         const remarkGroup = document.getElementById("remarkGroup");
-        const remarkHint = document.getElementById("remarkHint");
 
         detailSelect.innerHTML = "";
 
@@ -269,11 +263,6 @@
             document.getElementById("sourceRemark").value = "";
         } else {
             remarkGroup.style.display = "block";
-            if (origSource === "Other campaigns") {
-                remarkHint.innerText = "Please specify details below (e.g. marketing email name, call inquiry details, etc.).";
-            } else {
-                remarkHint.innerText = "Please specify event name, database source (e.g. Lusha), or contact person.";
-            }
         }
 
         generateSourceResult();
@@ -285,9 +274,7 @@
         const remark = document.getElementById("sourceRemark").value.trim();
 
         let result = "";
-        if (origSource === "Offline Source") {
-            result = remark ? `${detail} ${remark}` : detail;
-        } else if (origSource === "Other campaigns") {
+        if (origSource === "Other campaigns") {
             result = remark ? `${detail} (${remark})` : detail;
         } else {
             result = detail;
